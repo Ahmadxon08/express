@@ -9,7 +9,7 @@ app.get("/", (req, res) => {
   res.status(201).send("Hello World!");
 });
 
-const users = [
+let users = [
   { id: 1, name: "John Doe", email: "john.doe@example.com" },
 
   { id: 2, name: "Jane Smith", email: "jane.smith@example.com" },
@@ -41,13 +41,13 @@ app.get("/api/users", (req, res) => {
   return res.status(400).send({ msg: "Invalid query parameters" });
 });
 
+///post action
 app.post("/api/users", (req, res) => {
   const { body } = req;
   const newUser = { id: users[users.length - 1].id + 1, ...body };
   users.push(newUser);
   return res.status(201).send(newUser);
 });
-
 app.get("/api/users/:id", (req, res) => {
   console.log(req.params);
   const parsedId = parseInt(req.params.id);
@@ -58,6 +58,57 @@ app.get("/api/users/:id", (req, res) => {
   const user = users.find((user) => user.id === parsedId);
   if (!user) return res.sendStatus(404);
   return res.send(user);
+});
+
+//put actions
+
+app.put("/api/users/:id", (req, res) => {
+  const {
+    body,
+    params: { id },
+  } = req;
+  const parsedId = parseInt(id);
+  if (isNaN(parsedId)) return res.sendStatus(404);
+  const findIndexOfUser = users.findIndex((user) => user.id === parsedId);
+  if (findIndexOfUser === -1) return res.sendStatus(404);
+  users[findIndexOfUser] = { id: parsedId, ...body };
+  return res.sendStatus(200);
+});
+
+//patch action
+
+app.patch("/api/users/:id", (req, res) => {
+  const {
+    body,
+    params: { id },
+  } = req;
+  const parsedId = parseInt(id);
+  if (isNaN(parsedId)) return res.sendStatus(404);
+  if (isNaN(parsedId)) return res.sendStatus(404);
+  const findIndexOfUser = users.findIndex((user) => user.id === parsedId);
+  if (findIndexOfUser === -1) return res.sendStatus(404);
+  users[findIndexOfUser] = { ...users[findIndexOfUser], ...body };
+  return res.sendStatus(200);
+});
+
+///delete action
+
+app.delete("/api/users/:id", (req, res) => {
+  const { id } = req.params;
+  const parsedId = parseInt(id);
+
+  if (isNaN(parsedId)) {
+    return res.sendStatus(400);
+  }
+
+  const initialLength = users.length;
+  users = users.filter((user) => user.id !== parsedId);
+
+  if (users.length === initialLength) {
+    return res.sendStatus(404);
+  }
+
+  return res.sendStatus(200);
 });
 
 const PORT = process.env.PORT || 3001;
